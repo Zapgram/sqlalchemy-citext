@@ -45,7 +45,8 @@ ischema_names['citext'] = CIText
 
 def register_citext_array(engine):
     """Call once with an engine for citext values to be returned as strings instead of characters"""
-    results = engine.execute(sqlalchemy.text("SELECT typarray FROM pg_type WHERE typname = 'citext'"))
+    with engine.connect() as connection:
+        results = connection.execute(sqlalchemy.text("SELECT typarray FROM pg_type WHERE typname = 'citext'"))
     oids = tuple(row[0] for row in results)
     array_type = psycopg2.extensions.new_array_type(oids, 'citext[]', psycopg2.STRING)
     psycopg2.extensions.register_type(array_type, None)
